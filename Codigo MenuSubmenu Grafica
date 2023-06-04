@@ -1,0 +1,137 @@
+#include<GL/glut.h>
+#include<math.h>
+#include<iostream>
+#define PI 3.141592
+using namespace std;
+
+// Identificadores de los menús
+int menuPoligonos;
+int menu;
+
+//Funciones para el circulo y cuadrado
+void circle() { //Funcion void para dibujar un circulo
+    GLfloat theta;
+    glClear(GL_COLOR_BUFFER_BIT);
+    glColor3f(1.0, 0.0, 0.0); //Color rojo para el circulo
+    glBegin(GL_POLYGON);
+    for (theta = 0; theta <= 360; theta++) { //Algoritmo para dibujar un circulo
+        //Investigar
+        glVertex2f(5 * sin(theta * PI / 180), 5 * cos(theta * PI / 180));
+    }
+    glEnd();
+    glFlush();
+}
+void square() {
+    GLfloat theta;
+    glClear(GL_COLOR_BUFFER_BIT);
+    glColor3f(0.0, 0.0, 1.0); //Color Azul para el cuadrado
+    glPointSize(1);
+    glBegin(GL_QUADS);
+    glVertex2f(5, 5);
+    glVertex2f(-5, 5);
+    glVertex2f(-5, -5);
+    glVertex2f(5, -5);
+    glEnd();
+    glFlush();
+}
+
+void points() {
+    //GLfloat theta;
+    glClear(GL_COLOR_BUFFER_BIT);
+    glColor3f(0.0, 1.0, 0.0); //Color verde para el triangulo
+    float puntos[2]; //Arreglo para almacenar puntos
+    //puntos[0] = 5;
+    //puntos[1] = 5;
+
+    for (int i = 0; i < 2; i++) { //Ingreso cordenadas de los puntos por TECLADO
+        cout << "Ingrese el valor para el punto: ";
+        cin >> puntos[i];
+    }
+    system("cls");
+    /**/
+    //cout << "Los puntos son: " << puntos[0] << "y el punto: " << puntos[1];
+    fflush(stdin); //Limpio el buffer de memoria
+    glPointSize(15);
+    glBegin(GL_POINTS);
+    glVertex2f(puntos[0], puntos[1]);
+    //glVertex2f(-5, 5);
+    //glVertex2f(0, -5);
+
+    glEnd();
+    glFlush();
+}
+
+
+
+// Función de devolución de llamada para el submenú
+void subMenuPoligonos(int opc)
+{
+    switch (opc)
+    {
+    case 1:
+        circle();
+        break;
+    case 2:
+        square();
+        break;
+    default:
+        break;
+    }
+}
+
+// Función de devolución de llamada para el menú principal
+void menuPrincipal(int opc)
+{
+    switch (opc)
+    {
+    case 1:
+        points();
+        break;
+    case 2:
+        points();
+        break;
+    case 3:
+        exit(0);
+        break;
+    default:
+        break;
+    }
+}
+
+void display()
+{
+    glClear(GL_COLOR_BUFFER_BIT);
+    glFlush();
+}
+
+
+int main(int argc, char** argv)
+{
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+    glutInitWindowSize(400, 400);
+    glutCreateWindow("OpenGL Menu");
+    glClearColor(1.0, 1.0, 1.0, 1.0);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(-10, 10, -10, 10);
+    glutDisplayFunc(display);
+
+    // Crear el submenú y agregar opciones
+    menuPoligonos = glutCreateMenu(subMenuPoligonos);
+    glutAddMenuEntry("Circulo", 1);
+    glutAddMenuEntry("Cuadrado", 2);
+
+    // Crear el menú principal y agregar opciones, incluido el submenú
+    menu = glutCreateMenu(menuPrincipal);
+    glutAddSubMenu("Poligonos", menuPoligonos);
+    glutAddMenuEntry("Puntos1 ", 1);
+    glutAddMenuEntry("Puntos2 ", 2);
+    glutAddMenuEntry("Salir", 3);
+
+    // Asignar la función de devolución de llamada para el clic derecho del ratón
+    //glutMouseFunc(mouseFunc);
+    glutAttachMenu(GLUT_RIGHT_BUTTON); //Uso el click derecho para mostrar el menu
+    glutMainLoop();
+    return 0;
+}
