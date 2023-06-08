@@ -1,31 +1,516 @@
 #include<GL/glut.h>
 #include<math.h>
 #include<iostream>
-
+#define PI 3.14159265358979323846
 using namespace std;
 
-#define PI 3.14159265358979323846
+// Identificadores de los menús
+int menuVectoresManejo;
+int menuOperacionesVectores;
+int menu;
 
+//Manejo de poligonos
 int num_sides;  // Número de lados del polígono
 const float radius = 5.0; // Radio del polígono
 float tx = 0.0f, ty = 0.0f; // Desplazamiento (traslación)
 float scale = 1.0f; // Escala
 float angle = 0.0f; // Ángulo de rotación
-// Identificadores de los menús
-int menu;
 
-// Función para calcular el área de un polígono regular
+// Funcion que calcula el área de un polígono regular utilizando la fórmula matemática .
 double calculate_area() {
     return 0.5 * num_sides * pow(radius, 2) * sin((2.0 * PI) / num_sides);
 }
 
-// Función para calcular el perímetro de un polígono regular
+// Funcion que calcula el perímetro de un polígono regular utilizando la fórmula matemática 
 double calculate_perimeter() {
     return 2 * radius * sin(PI / num_sides) * num_sides;
 }
 
+void ManejoPoligonos() {
+    cout << "Por favor, introduzca el numero de lados del poligono: ";//Solicita que ingrese el número de lados del polígono
+    cin >> num_sides;//ingresa el numero
 
-// Evento de teclado
+    
+    if (num_sides < 3)//verifica si el número es válido
+    {
+        cout << "El numero de lados debe ser al menos 3." << endl;
+        exit(0);
+    }
+
+    double area = calculate_area();//definir variables para definir el area
+    double perimeter = calculate_perimeter();//definir variables para definir el perimetro
+    cout << "Area: " << area << endl;//muestra en la consola el mensaje 
+    cout << "Perimetro: " << perimeter << endl;//muestra en la consola el mensaje 
+}
+
+void PuntosCuadrantes(GLfloat inicial, GLfloat final) {
+    glColor3f(0.0, 0.0, 0.0);//se define el color de las lineas Negro
+    glBegin(GL_LINES);
+    glVertex2f(inicial, 0);
+    glVertex2f(final, 0);
+    glVertex2f(0, inicial);
+    glVertex2f(0, final);
+    glEnd();
+
+    glColor3f(0.0, 0.0, 0.0);//se define el color de las lineas Negro
+    //Eje x-y
+    glPointSize(2);
+    glBegin(GL_POINTS);
+    for (int i = inicial; i <= final; i++) {
+
+        glVertex2f(i, 0);
+        glVertex2f(0, i);
+    }
+    glEnd();
+    glFlush();
+}
+
+//Funcion para definir los puntos y cuadrantes
+
+void vectoresDatosDibujo() {
+    int vector[4];
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glColor3f(0.0, 0.0, 1.0); //Color azul para el vector
+    //Pido datos del vector
+    for (int i = 0; i < 4; i++) {
+        cout << "Ingrese el valor de las coordenadas: " << endl;
+        cin >> vector[i];
+    }
+    system("cls");
+    fflush(stdin);
+    glLineWidth(2);
+    //Graficar pares de puntos 
+    glBegin(GL_LINES);
+    //Grafico el vector
+    glVertex2f(vector[0], vector[1]);
+    glVertex2f(vector[2], vector[3]);
+    glEnd();
+    glFlush();
+    //PuntosCuadrantes(-10, 10);
+
+}
+
+//--------------TRANSFORMACIONES GEOMETRICAS------------------------
+void trasladarVector() {
+    int vector[4];
+    double valorX, valorY; //Valores de movimiento de ejes x,y
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    PuntosCuadrantes(-10, 10);
+    glColor3f(0.0, 0.0, 0.0); //Color negro
+    //Pido datos del vector
+    for (int i = 0; i < 4; i++) {
+        cout << "Ingrese el valor de las coordenadas: " << endl;
+        cin >> vector[i];
+    }
+
+    fflush(stdin);
+    system("cls");
+    
+    glLineWidth(2);
+    //Graficar pares de puntos 
+    glBegin(GL_LINES);
+    //Grafico el vector
+    glVertex2f(vector[0], vector[1]);
+    glVertex2f(vector[2], vector[3]);
+    glEnd();
+    glFlush();
+    
+    // TRASLACION
+    cout << "Ingrese el valor de movimiento en x: " << endl;
+    cin >> valorX;
+    cout << "Ingrese el valor de movimiento en y: " << endl;
+    cin >> valorY;
+
+    int vectorTraslacion[4];
+    vectorTraslacion[0] = vector[0] + valorX; //Sumo en el eje x posicion 0
+    vectorTraslacion[1] = vector[1] + valorY; //Sumo en el eje y posicion 1
+    vectorTraslacion[2] = vector[2] + valorX;//Sumo en el eje x posicion 2
+    vectorTraslacion[3] = vector[3] + valorY;//Sumo en el eje x posicion 3
+
+    system("cls");
+
+    glColor3f(0.0, 0.0, 1.0); //Color azul para el vector TRASLADADO
+    glBegin(GL_LINES);
+    //Grafico el vector nuevamente
+    glVertex2f(vectorTraslacion[0], vectorTraslacion[1]);
+    glVertex2f(vectorTraslacion[2], vectorTraslacion[3]);
+    glEnd();
+    glFlush();
+    
+}
+
+//ROTACION
+void rotarVector() {
+    int vector[4];
+    double ejeX, ejeY, ejeZ, anguloRotacion; //Valores de movimiento de ejes x,y
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    PuntosCuadrantes(-10, 10);
+    glColor3f(0.0, 0.0, 0.0); //Color negro
+    for (int i = 0; i < 4; i++) {
+        cout << "Ingrese el valor de las coordenadas: " << endl;
+        cin >> vector[i];
+    }
+    system("cls");
+    fflush(stdin);
+
+    glLineWidth(2);
+    //Graficar pares de puntos 
+    glBegin(GL_LINES);
+    //Grafico el vector
+    glVertex2f(vector[0], vector[1]);
+    glVertex2f(vector[2], vector[3]);
+    glEnd();    
+    glFlush();
+    //DATOS ROTACION
+    cout << "Ingrese el angulo de rotacion (Grados): " << endl;
+    cin >> anguloRotacion;
+    cout << "Escriba el punto x (coordenada) para rotar sobre dicho punto" << endl;
+    cin >> ejeX;
+    cout << "Escriba el punto y (coordenada) para rotar sobre dicho punto" << endl;
+    cin >> ejeY;
+    fflush(stdin);
+    system("cls");
+    float coordenadasRotacion[4];
+
+    //Primeros dos puntos 
+    coordenadasRotacion[0] = (ejeX + (int)((float)(vector[0] - ejeX) *
+        cos(anguloRotacion)) - ((float)(vector[1] - ejeY) *
+            sin(anguloRotacion)));
+    coordenadasRotacion[1] = (ejeY + (int)((float)(vector[0] - ejeX) *
+        sin(anguloRotacion)) + ((float)(vector[1] - ejeY) *
+            cos(anguloRotacion)));
+    //Segundo dos puntos 
+    coordenadasRotacion[2] = (ejeX + (int)((float)(vector[2] - ejeX) *
+        cos(anguloRotacion)) - ((float)(vector[3] - ejeY) *
+            sin(anguloRotacion)));
+    coordenadasRotacion[3] = (ejeY + (int)((float)(vector[2] - ejeX) *
+        sin(anguloRotacion)) + ((float)(vector[3] - ejeY) *
+            cos(anguloRotacion)));
+
+    glColor3f(1.0, 0.0, 0.0); //Color rojo para el vector ROTADO
+    glBegin(GL_LINES);
+    //Grafico el vector nuevamente
+    glVertex2f(coordenadasRotacion[0], coordenadasRotacion[1]);
+    glVertex2f(coordenadasRotacion[2], coordenadasRotacion[3]);
+    glEnd();
+    glFlush();
+
+}
+//Escala
+void escalarVector() {
+    int vector[4];
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    PuntosCuadrantes(-10, 10);
+    glColor3f(0.0, 0.0, 0.0); //Color negro
+
+    for (int i = 0; i < 4; i++) {
+        cout << "Ingrese el valor de las coordenadas: " << endl;
+        cin >> vector[i];
+    }
+    fflush(stdin);
+    system("cls");
+    // Graficar el vector original
+    glBegin(GL_LINES);
+    glVertex2f(vector[0], vector[1]);
+    glVertex2f(vector[2], vector[3]);
+    glEnd();
+    glFlush();
+
+    // DATOS ESCALAMIENTO
+    double escalaX, escalaY;
+    cout << "Ingrese cuantas unidades quieren escalar en el eje x: ";
+    cin >> escalaX;
+    cout << "Ingrese cuantas unidades quieren escalar en el eje y: ";
+    cin >> escalaY;
+    glColor3f(0.0, 1.0, 0.0);
+    double vectorEscala[4];
+    vectorEscala[0] = vector[0] * escalaX; //Producto en el eje x posicion 0
+    vectorEscala[1] = vector[1] * escalaY; //Producto en el eje y posicion 1
+    vectorEscala[2] = vector[2] * escalaX;//Producto en el eje x posicion 2
+    vectorEscala[3] = vector[3] * escalaY;//Producto en el eje x posicion 3
+    fflush(stdin);
+    system("cls");
+    glColor3f(0.0, 1.0, 0.0); //Color verde para el vector
+    glBegin(GL_LINES);
+    //Grafico el vector nuevamente
+    glVertex2f(vectorEscala[0], vectorEscala[1]);
+    glVertex2f(vectorEscala[2], vectorEscala[3]);
+    glEnd();
+    glFlush();
+}
+
+// Función de devolución de llamada para el submenú
+void subManejoVectores(int opc){
+    //Pido datos del vector y grafico
+    switch (opc)
+    {
+    case 1:
+        cout << "Debe ingresar los datos del vector para la traslacion"<<endl;
+        trasladarVector();
+        
+        break;
+    case 2:
+        cout << "Debe ingresar los datos del vector para la rotacion" << endl;
+        rotarVector();
+        break;
+    case 3:
+        cout << "Debe ingresar los datos del vector para la escala" << endl;
+        escalarVector();
+        break;
+    default:
+        break;
+    }
+}
+//-------------------------------------------------------------------------------------
+//OPERACIONES VECTORES 
+void sumarVector() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    PuntosCuadrantes(-10, 10);
+    int vector1[2];
+    int vector2[2];
+    for (int i = 0; i < 2; i++) {
+        cout << "Ingrese los datos del primer vector: ";
+            cin >> vector1[i];
+    }
+    fflush(stdin);
+    system("cls");
+
+    for (int i = 0; i < 2; i++) {
+        cout << "Ingrese los datos del segundo vector: ";
+        cin >> vector2[i];
+    }
+
+    fflush(stdin);
+    system("cls");
+
+    //Dibujo ambos vectores, coordenadas iniciales son 0.0
+    glColor3f(1.0, 0.0, 0.0); //Color rojo vector 1
+    glBegin(GL_LINES);
+    glVertex2f(0.0, 0.0);
+    glVertex2f(vector1[0], vector1[1]);
+    glEnd();
+    glFlush();
+
+    
+    //Segundo vector
+    glColor3f(0.0, 0.0, 1.0); //Color azul vector 2
+    glBegin(GL_LINES);
+    glVertex2f(0.0, 0.0);
+    glVertex2f(vector2[0], vector2[1]);
+    glEnd();
+    glFlush();
+    
+    
+    //Calculo la suma
+    int vectorSuma[2];
+    for (int i = 0; i < 2; i++) {
+        vectorSuma[i] = vector1[i] + vector2[i];
+    }
+
+    cout << "El vector suma es: ";
+    cout << " "<<vectorSuma[0] << ", " << vectorSuma[1] << endl;
+    system("pause");
+    system("cls");
+
+    //Grafico el vector resultante
+    glColor3f(0.0, 1.0, 0.0); //Color verde para el vector resultado
+    glBegin(GL_LINES);
+    glVertex2f(0.0, 0.0);
+    glVertex2f(vectorSuma[0], vectorSuma[1]);
+    glEnd();
+    glFlush();
+    /**/
+    /**/
+}
+void restarVector() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    PuntosCuadrantes(-10, 10);
+    int vector1[2];
+    int vector2[2];
+    for (int i = 0; i < 2; i++) {
+        cout << "Ingrese los datos del primer vector: ";
+        cin >> vector1[i];
+    }
+    fflush(stdin);
+    system("cls");
+
+    for (int i = 0; i < 2; i++) {
+        cout << "Ingrese los datos del segundo vector: ";
+        cin >> vector2[i];
+    }
+
+    fflush(stdin);
+    system("cls");
+
+    //Dibujo ambos vectores, coordenadas iniciales son 0.0
+    glColor3f(1.0, 0.0, 0.0); //Color rojo vector 1
+    glBegin(GL_LINES);
+    glVertex2f(0.0, 0.0);
+    glVertex2f(vector1[0], vector1[1]);
+    glEnd();
+    glFlush();
+
+
+    //Segundo vector
+    glColor3f(0.0, 0.0, 1.0); //Color azul vector 2
+    glBegin(GL_LINES);
+    glVertex2f(0.0, 0.0);
+    glVertex2f(vector2[0], vector2[1]);
+    glEnd();
+    glFlush();
+
+
+    //Calculo la suma
+    int vectorResta[2];
+    for (int i = 0; i < 2; i++) {
+        vectorResta[i] = vector1[i] - vector2[i];
+    }
+
+    cout << "El vector resta es: ";
+    cout << " " << vectorResta[0] << ", " << vectorResta[1] << endl;
+    system("pause");
+    system("cls");
+
+    //Grafico el vector resultante
+    glColor3f(0.0, 1.0, 0.0); //Color verde para el vector resultado
+    glBegin(GL_LINES);
+    glVertex2f(0.0, 0.0);
+    glVertex2f(vectorResta[0], vectorResta[1]);
+    glEnd();
+    glFlush();
+    /**/
+    /**/
+}
+void escalarProductoVector() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    PuntosCuadrantes(-10, 10);
+    int vector1[2];
+    for (int i = 0; i < 2; i++) {
+        cout << "Ingrese los datos del primer vector: ";
+        cin >> vector1[i];
+    }
+    fflush(stdin);
+    system("cls");
+
+    //Dibujo ambos vectores, coordenadas iniciales son 0.0
+    glColor3f(1.0, 0.0, 0.0); //Color rojo vector 1
+    glBegin(GL_LINES);
+    glVertex2f(0.0, 0.0);
+    glVertex2f(vector1[0], vector1[1]);
+    glEnd();
+    glFlush();
+
+    int escalar;
+    cout << "Digite el valor a multiplicar por el vector: ";
+    cin >> escalar;
+
+
+    //Calculo el producto escalar
+    int vectorEscalar[2];
+    for (int i = 0; i < 2; i++) {
+        vectorEscalar[i] = vector1[i] + 1;
+    }
+
+    cout << "El vector escalar es: ";
+    cout << " " << vectorEscalar[0] << ", " << vectorEscalar[1] << endl;
+    system("pause");
+    system("cls");
+
+    //Grafico el vector resultante
+    glColor3f(0.0, 1.0, 0.0); //Color verde para el vector resultado
+    glBegin(GL_LINES);
+    glVertex2f(0.0, 0.0);
+    glVertex2f(vectorEscalar[0], vectorEscalar[1]);
+    glEnd();
+    glFlush();
+}
+void productoPuntoVector() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    PuntosCuadrantes(-10, 10);
+    int vector1[2];
+    int vector2[2];
+    for (int i = 0; i < 2; i++) {
+        cout << "Ingrese los datos del primer vector: ";
+        cin >> vector1[i];
+    }
+    fflush(stdin);
+    system("cls");
+
+    for (int i = 0; i < 2; i++) {
+        cout << "Ingrese los datos del segundo vector: ";
+        cin >> vector2[i];
+    }
+
+    fflush(stdin);
+    system("cls");
+
+    //Dibujo ambos vectores, coordenadas iniciales son 0.0
+    glColor3f(1.0, 0.0, 0.0); //Color rojo vector 1
+    glBegin(GL_LINES);
+    glVertex2f(0.0, 0.0);
+    glVertex2f(vector1[0], vector1[1]);
+    glEnd();
+    glFlush();
+
+
+    //Segundo vector
+    glColor3f(0.0, 0.0, 1.0); //Color azul vector 2
+    glBegin(GL_LINES);
+    glVertex2f(0.0, 0.0);
+    glVertex2f(vector2[0], vector2[1]);
+    glEnd();
+    glFlush();
+
+
+    //Calculo producto punto
+    int productoPunto = 0;
+    int vectorSuma[2];
+    for (int i = 0; i < 2; i++) {
+        productoPunto += vector1[i] * vector2[i];
+    }
+
+    cout << "El resultado del producto punto es:  ";
+    cout << productoPunto<<endl;
+    system("pause");
+    system("cls");
+}
+
+//SubMenu operaciones vectores
+void subOperacionesVect(int opc) {
+    switch (opc) {
+    case 1:
+        sumarVector();
+        break;
+    case 2: 
+       restarVector();
+        break;
+    case 3: 
+        escalarProductoVector();
+        break;
+    case 4:
+        productoPuntoVector();
+        break;
+
+    }
+    
+}
+
+// Función de devolución de llamada para el menú principal
+void menuPrincipal(int opc)
+{
+    switch (opc)
+    {
+    case 1:
+        ManejoPoligonos();
+        break;
+    case 2:
+        exit(0);
+        break;
+    default:
+        break;
+    }
+}
+
 void keyboard(unsigned char key, int x, int y) {
     switch (key) {
     case 'w': ty += 1.0f; break; // Mueve hacia arriba
@@ -41,112 +526,89 @@ void keyboard(unsigned char key, int x, int y) {
 }
 
 // Evento de click de mouse
-void mouse(int button, int state, int x, int y) {
-    if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+void mouse(int button, int state, int x, int y)  //define la función que toma cuatro parámetros
+{
+    if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)//verifica si el botón del mouse presionado 
+        //es el botón izquierdo
+    {
         // Reinicia las transformaciones
         tx = 0.0f;
         ty = 0.0f;
         scale = 1.0f;
         angle = 0.0f;
-        glutPostRedisplay();
-    }
-}
-void Poligonos() {
-    cout << "Por favor introduzca el numero de lados del poligono: ";
-    cin >> num_sides;
-
-    if (num_sides < 3) {
-        cout << "El numero de lados debe ser al menos 3." << endl;
-        return 1;
-    }
-
-    double area = calculate_area();
-    double perimeter = calculate_perimeter();
-    cout << "Area: " << area << endl;
-    cout << "Perímetro: " << perimeter << endl;
-}
-
-// Función de devolución de llamada para el menú principal
-void menuPrincipal(int opc)
-{
-    switch (opc)
-    {
-    case 1:
-        //points();
-        break;
-    case 2:
-        //points();
-        break;
-    case 3:
-        Poligonos();
-        break;
-    case 4:
-        exit(0);
-        break;
-    default:
-        break;
+        glutPostRedisplay();// indica a GLUT que debe redibujar la ventana
     }
 }
 
 void display()
 {
-    glClear(GL_COLOR_BUFFER_BIT);
-
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glMatrixMode(GL_PROJECTION);
+    PuntosCuadrantes(-10, 10);
     glPushMatrix(); // Guarda la matriz de transformación actual
 
-    glTranslatef(tx, ty, 0.0f); // Traslación
-    glRotatef(angle, 0.0f, 0.0f, 1.0f); // Rotación
-    glScalef(scale, scale, 1.0f); // Escala
+    glTranslatef(tx, ty, 0.0f); // realiza una traslación en el sistema de coordenadas. 
+    //mueve el objeto en la dirección especificada por los valores tx y ty en los ejes X e Y.
+    glRotatef(angle, 0.0f, 0.0f, 1.0f); //  realiza una rotación en el sistema de coordenadas.
+    // rota el objeto alrededor del eje Z por el ángulo especificado en el parámetro angle. 
+    glScalef(scale, scale, 1.0f); // realiza una escala en el sistema de coordenadas aumenta o disminuye.
+    // el tamaño del objeto en los ejes X e Y 
 
     glColor3f(0.0f, 0.0f, 1.0f); // Establece el color del polígono a azul
-    glBegin(GL_POLYGON);
-    for (int i = 0; i < num_sides; i++) {
-        float theta = i * 2.0f * PI / num_sides;
-        float x = radius * cosf(theta);
-        float y = radius * sinf(theta);
-        glVertex2f(x, y);
+    glBegin(GL_POLYGON);// marca el comienzo de la definición de un polígono
+    for (int i = 0; i < num_sides; i++) {//El bucle se utiliza para calcular las coordenadas de los vértices 
+        //del polígono
+        float theta = i * 2.0f * PI / num_sides;//Utiliza un ángulo theta que varía de 0 a 2π (ciclo completo)
+        float x = radius * cosf(theta);// calcula las coordenadas en x utilizando la función cosf() .
+        float y = radius * sinf(theta);// calcula las coordenadas en y utilizando la función sinf() . 
+        glVertex2f(x, y);//Especifica las coordenadas de un vértice en un polígono que se va a dibujar
     }
-    glEnd();
+    glEnd(); //marca el final de la definición del polígono
 
-    glPopMatrix(); // Restaura la matriz de transformación
+    glPopMatrix(); //  restaura la matriz de transformación guardada previamente en las matrices
 
-    glutSwapBuffers();
+    glutSwapBuffers(); //intercambia los búferes de la ventana
+    glFlush();
 }
 
 
 int main(int argc, char** argv)
 {
-  
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
-    glutInitWindowSize(500, 500);
-    glutInitWindowPosition(100, 100);
-    glutCreateWindow("Geogebra OpenGl");
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-    gluOrtho2D(-10.0f, 10.0f, -10.0f, 10.0f);
+    glutInitWindowSize(400, 400);
+    glutCreateWindow("OpenGL Menu");
+    glClearColor(1.0, 1.0, 1.0, 1.0);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glutDisplayFunc(display);
-
-    //// Crear el submenú y agregar opciones
-    //menuPoligonos = glutCreateMenu(subMenuPoligonos);
-    //glutAddMenuEntry("Circulo", 1);
-    //glutAddMenuEntry("Cuadrado", 2);
-
-    // Crear el menú principal y agregar opciones, incluido el submenú
-    menu = glutCreateMenu(menuPrincipal);
-    glutAddSubMenu("Poligonos", menu);
-    glutAddMenuEntry("Manejo de vectores ", 1);
-    glutAddMenuEntry("Operaciones con Vectores ", 2);
-    glutAddMenuEntry("Manejo de Poligonos ", 3);
-    glutAddMenuEntry("Salir", 4);
-    glutAttachMenu(GLUT_RIGHT_BUTTON); //Uso el click derecho para mostrar el menu
-
+    gluOrtho2D(-10, 10, -10, 10);
     glutDisplayFunc(display);
     glutKeyboardFunc(keyboard); // Establece la función de manejo del teclado
     glutMouseFunc(mouse); // Establece la función de manejo del mouse
 
+    // Crear el submenú y agregar opciones de manejo de vectores
+    menuVectoresManejo= glutCreateMenu(subManejoVectores);
+    glutAddMenuEntry("Traslacion", 1);
+    glutAddMenuEntry("Rotacion", 2);
+    glutAddMenuEntry("Escala", 3);
+
+    //Crear submenu para agregar operacioens con vectores
+    menuOperacionesVectores = glutCreateMenu(subOperacionesVect);
+    glutAddMenuEntry("Suma", 1);
+    glutAddMenuEntry("Resta", 2);
+    glutAddMenuEntry("Producto escalar", 3);
+    glutAddMenuEntry("Producto punto", 4);
+
+    // Crear el menú principal y agregar opciones, incluido el submenú
+    menu = glutCreateMenu(menuPrincipal);
+    glutAddSubMenu("Manejo de vectores", menuVectoresManejo);
+    glutAddSubMenu("Operaciones vectores", menuOperacionesVectores);
+    glutAddMenuEntry("Manejo de poligonos ", 1);
+    glutAddMenuEntry("Salir ", 2);
+
+    // Asignar la función de devolución de llamada para el clic derecho del ratón
+    //glutMouseFunc(mouseFunc);
+    glutAttachMenu(GLUT_RIGHT_BUTTON); //Uso el click derecho para mostrar el menu
     glutMainLoop();
     return 0;
 }
-
