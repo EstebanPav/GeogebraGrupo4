@@ -1,0 +1,62 @@
+#include <GL/glut.h>
+
+float scale = 1.0; // Factor de escala
+
+void init() {
+    glClearColor(1.0, 1.0, 1.0, 0.0);
+    glMatrixMode(GL_PROJECTION);
+    gluOrtho2D(-5.0, 5.0, -5.0, 5.0);
+}
+
+void display() {
+    glClear(GL_COLOR_BUFFER_BIT);
+    glColor3f(0.0, 0.0, 0.0);
+    
+    glLoadIdentity();
+    
+    // Escalar en el eje X e Y
+    glScalef(scale, scale, 1.0);
+    
+    // Dibujar un cuadrado
+    glBegin(GL_QUADS);
+    glVertex2f(-1.0, -1.0);
+    glVertex2f(1.0, -1.0);
+    glVertex2f(1.0, 1.0);
+    glVertex2f(-1.0, 1.0);
+    glEnd();
+    
+    glFlush();
+}
+
+void keyboard(unsigned char key, int x, int y) {
+    switch (key) {
+        case '+': // Aumentar la escala
+            scale += 0.1;
+            glutPostRedisplay();
+            break;
+        case '-': // Disminuir la escala
+            scale -= 0.1;
+            if (scale < 0.1)
+                scale = 0.1;
+            glutPostRedisplay();
+            break;
+        case 27: // Tecla ESC para salir de la aplicación
+            exit(0);
+            break;
+        default:
+            break;
+    }
+}
+
+int main(int argc, char** argv) {
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+    glutInitWindowSize(400, 400);
+    glutInitWindowPosition(100, 100);
+    glutCreateWindow("Escala en OpenGL");
+    init();
+    glutDisplayFunc(display);
+    glutKeyboardFunc(keyboard);
+    glutMainLoop();
+    return 0;
+}
