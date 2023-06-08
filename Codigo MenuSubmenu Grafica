@@ -1,82 +1,69 @@
 #include<GL/glut.h>
 #include<math.h>
 #include<iostream>
-#define PI 3.141592
+
 using namespace std;
 
+#define PI 3.14159265358979323846
+
+int num_sides;  // Número de lados del polígono
+const float radius = 5.0; // Radio del polígono
+float tx = 0.0f, ty = 0.0f; // Desplazamiento (traslación)
+float scale = 1.0f; // Escala
+float angle = 0.0f; // Ángulo de rotación
 // Identificadores de los menús
-int menuPoligonos;
 int menu;
 
-//Funciones para el circulo y cuadrado
-void circle() { //Funcion void para dibujar un circulo
-    GLfloat theta;
-    glClear(GL_COLOR_BUFFER_BIT);
-    glColor3f(1.0, 0.0, 0.0); //Color rojo para el circulo
-    glBegin(GL_POLYGON);
-    for (theta = 0; theta <= 360; theta++) { //Algoritmo para dibujar un circulo
-        //Investigar
-        glVertex2f(5 * sin(theta * PI / 180), 5 * cos(theta * PI / 180));
-    }
-    glEnd();
-    glFlush();
-}
-void square() {
-    GLfloat theta;
-    glClear(GL_COLOR_BUFFER_BIT);
-    glColor3f(0.0, 0.0, 1.0); //Color Azul para el cuadrado
-    glPointSize(1);
-    glBegin(GL_QUADS);
-    glVertex2f(5, 5);
-    glVertex2f(-5, 5);
-    glVertex2f(-5, -5);
-    glVertex2f(5, -5);
-    glEnd();
-    glFlush();
+// Función para calcular el área de un polígono regular
+double calculate_area() {
+    return 0.5 * num_sides * pow(radius, 2) * sin((2.0 * PI) / num_sides);
 }
 
-void points() {
-    //GLfloat theta;
-    glClear(GL_COLOR_BUFFER_BIT);
-    glColor3f(0.0, 1.0, 0.0); //Color verde para el triangulo
-    float puntos[2]; //Arreglo para almacenar puntos
-    //puntos[0] = 5;
-    //puntos[1] = 5;
-
-    for (int i = 0; i < 2; i++) { //Ingreso cordenadas de los puntos por TECLADO
-        cout << "Ingrese el valor para el punto: ";
-        cin >> puntos[i];
-    }
-    system("cls");
-    /**/
-    //cout << "Los puntos son: " << puntos[0] << "y el punto: " << puntos[1];
-    fflush(stdin); //Limpio el buffer de memoria
-    glPointSize(15);
-    glBegin(GL_POINTS);
-    glVertex2f(puntos[0], puntos[1]);
-    //glVertex2f(-5, 5);
-    //glVertex2f(0, -5);
-
-    glEnd();
-    glFlush();
+// Función para calcular el perímetro de un polígono regular
+double calculate_perimeter() {
+    return 2 * radius * sin(PI / num_sides) * num_sides;
 }
 
 
-
-// Función de devolución de llamada para el submenú
-void subMenuPoligonos(int opc)
-{
-    switch (opc)
-    {
-    case 1:
-        circle();
-        break;
-    case 2:
-        square();
-        break;
-    default:
-        break;
+// Evento de teclado
+void keyboard(unsigned char key, int x, int y) {
+    switch (key) {
+    case 'w': ty += 1.0f; break; // Mueve hacia arriba
+    case 'a': tx -= 1.0f; break; // Mueve a la izquierda
+    case 's': ty -= 1.0f; break; // Mueve hacia abajo
+    case 'd': tx += 1.0f; break; // Mueve a la derecha
+    case 'q': angle += 5.0f; break; // Rota en sentido horario
+    case 'e': angle -= 5.0f; break; // Rota en sentido antihorario
+    case 'z': scale *= 1.1f; break; // Incrementa la escala
+    case 'x': scale /= 1.1f; break; // Decrementa la escala
     }
+    glutPostRedisplay(); // Solicita a GLUT que redibuje la ventana
+}
+
+// Evento de click de mouse
+void mouse(int button, int state, int x, int y) {
+    if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+        // Reinicia las transformaciones
+        tx = 0.0f;
+        ty = 0.0f;
+        scale = 1.0f;
+        angle = 0.0f;
+        glutPostRedisplay();
+    }
+}
+void Poligonos() {
+    cout << "Por favor introduzca el numero de lados del poligono: ";
+    cin >> num_sides;
+
+    if (num_sides < 3) {
+        cout << "El numero de lados debe ser al menos 3." << endl;
+        return 1;
+    }
+
+    double area = calculate_area();
+    double perimeter = calculate_perimeter();
+    cout << "Area: " << area << endl;
+    cout << "Perímetro: " << perimeter << endl;
 }
 
 // Función de devolución de llamada para el menú principal
@@ -85,12 +72,15 @@ void menuPrincipal(int opc)
     switch (opc)
     {
     case 1:
-        points();
+        //points();
         break;
     case 2:
-        points();
+        //points();
         break;
     case 3:
+        Poligonos();
+        break;
+    case 4:
         exit(0);
         break;
     default:
@@ -101,37 +91,62 @@ void menuPrincipal(int opc)
 void display()
 {
     glClear(GL_COLOR_BUFFER_BIT);
-    glFlush();
+
+    glPushMatrix(); // Guarda la matriz de transformación actual
+
+    glTranslatef(tx, ty, 0.0f); // Traslación
+    glRotatef(angle, 0.0f, 0.0f, 1.0f); // Rotación
+    glScalef(scale, scale, 1.0f); // Escala
+
+    glColor3f(0.0f, 0.0f, 1.0f); // Establece el color del polígono a azul
+    glBegin(GL_POLYGON);
+    for (int i = 0; i < num_sides; i++) {
+        float theta = i * 2.0f * PI / num_sides;
+        float x = radius * cosf(theta);
+        float y = radius * sinf(theta);
+        glVertex2f(x, y);
+    }
+    glEnd();
+
+    glPopMatrix(); // Restaura la matriz de transformación
+
+    glutSwapBuffers();
 }
 
 
 int main(int argc, char** argv)
 {
+  
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
-    glutInitWindowSize(400, 400);
-    glutCreateWindow("OpenGL Menu");
-    glClearColor(1.0, 1.0, 1.0, 1.0);
+    glutInitWindowSize(500, 500);
+    glutInitWindowPosition(100, 100);
+    glutCreateWindow("Geogebra OpenGl");
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    gluOrtho2D(-10.0f, 10.0f, -10.0f, 10.0f);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluOrtho2D(-10, 10, -10, 10);
     glutDisplayFunc(display);
 
-    // Crear el submenú y agregar opciones
-    menuPoligonos = glutCreateMenu(subMenuPoligonos);
-    glutAddMenuEntry("Circulo", 1);
-    glutAddMenuEntry("Cuadrado", 2);
+    //// Crear el submenú y agregar opciones
+    //menuPoligonos = glutCreateMenu(subMenuPoligonos);
+    //glutAddMenuEntry("Circulo", 1);
+    //glutAddMenuEntry("Cuadrado", 2);
 
     // Crear el menú principal y agregar opciones, incluido el submenú
     menu = glutCreateMenu(menuPrincipal);
-    glutAddSubMenu("Poligonos", menuPoligonos);
-    glutAddMenuEntry("Puntos1 ", 1);
-    glutAddMenuEntry("Puntos2 ", 2);
-    glutAddMenuEntry("Salir", 3);
-
-    // Asignar la función de devolución de llamada para el clic derecho del ratón
-    //glutMouseFunc(mouseFunc);
+    glutAddSubMenu("Poligonos", menu);
+    glutAddMenuEntry("Manejo de vectores ", 1);
+    glutAddMenuEntry("Operaciones con Vectores ", 2);
+    glutAddMenuEntry("Manejo de Poligonos ", 3);
+    glutAddMenuEntry("Salir", 4);
     glutAttachMenu(GLUT_RIGHT_BUTTON); //Uso el click derecho para mostrar el menu
+
+    glutDisplayFunc(display);
+    glutKeyboardFunc(keyboard); // Establece la función de manejo del teclado
+    glutMouseFunc(mouse); // Establece la función de manejo del mouse
+
     glutMainLoop();
     return 0;
 }
+
