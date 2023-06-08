@@ -18,13 +18,12 @@ void display() {
     // Trasladar en los ejes X e Y
     glTranslatef(translationX, translationY, 0.0);
     
-    // Dibujar un cuadrado
+     // Dibujar vectores
     glBegin(GL_QUADS);
     glVertex2f(-1.0, -1.0);
-    glVertex2f(1.0, -1.0);
-    glVertex2f(1.0, 1.0);
-    glVertex2f(-1.0, 1.0);
+    glVertex2f(1.0, 1.0)
     glEnd();
+
     
     glFlush();
 }
